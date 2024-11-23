@@ -4,24 +4,24 @@ import {useEffect, useState} from "react";
 
 const App = () => {
     // Backend API URL
-    const baseUrl = 'http://localhost:4000/todos';
+    const baseUrl = 'http://localhost:4000/tasks';
 
-    const [todos, setTodos]             = useState([]);
+    const [tasks, setTasks]             = useState([]);
     const [title, setTitle]             = useState('');
     const [description, setDescription] = useState('');
-    const [todoId, setTodoId]           = useState(null);
+    const [taskId, setTaskId]           = useState(null);
     const [isEdit, setIsEdit]           = useState(false);
     const [successMsg, setSuccessMsg]   = useState(null);
     const [errorMsg, setErrorMsg]       = useState(null);
 
     // Fetch all todos
-    const getTodos = async () => {
+    const getTasks = async () => {
         try {
             // Fetch data from backend
             const response = await axios.get(`${baseUrl}`);
 
             // Set todos data to todos state
-            setTodos(response.data.data);
+            setTasks(response.data.data);
 
             // Show success message
             setSuccessMsg(response.data.message);
@@ -37,7 +37,7 @@ const App = () => {
     };
 
     // Add new todo
-    const addTodoHandler = async (e) => {
+    const addTaskHandler = async (e) => {
         // Prevent default form submission
         e.preventDefault();//padlena 
         try {
@@ -45,7 +45,7 @@ const App = () => {
             const response = await axios.post(`${baseUrl}`, {title, description});
 
             // Add new todo and update todos state
-            setTodos([...todos, response.data.data]);
+            setTasks([...tasks, response.data.data]);
 
             // Reset todo form
             setTitle('');
@@ -64,45 +64,45 @@ const App = () => {
     };
 
     // Cancel/Reset todo form
-    const cancelTodoHandler = () => {
+    const cancelTaskHandler = () => {
         setTitle('');
         setDescription('');
         setIsEdit(false);
     };
 
     // Edit todo
-    const editTodoHandler = async (todo) => {
+    const editTaskHandler = async (task) => {
         // Set todo data to todo form
-        setTitle(todo.title);
-        setDescription(todo.description);
-        setTodoId(todo.id);
+        setTitle(task.title);
+        setDescription(task.description);
+        setTaskId(task.id);
         setIsEdit(true);
     };
 
     // Update todo
-    const updateTodoHandler = async (e) => {
+    const updateTaskHandler = async (e) => {
         // Prevent default form submission
         e.preventDefault();
         try {
             // Send put request to backend by sending title and description
-            const response     = await axios.put(`${baseUrl}/${todoId}`, {title, description});
+            const response     = await axios.put(`${baseUrl}/${taskId}`, {title, description});
 
             // Update todo in todos state
-            const updatedTodos = todos.map(todo => {
-                if (todo.id === todoId) {
-                    todo.title       = title;
-                    todo.description = description;
+            const updatedTasks = tasks.map(task => {
+                if (task.id === taskId) {
+                    task.title       = title;
+                    task.description = description;
                 }
-                return todo;
+                return task;
             });
 
             // Update todos state
-            setTodos(updatedTodos);
+            setTasks(updatedTasks);
 
             // Reset todo form
             setTitle('');
             setDescription('');
-            setTodoId(null);
+            setTaskId(null);
             setIsEdit(false);
 
             // Show success message
@@ -118,16 +118,16 @@ const App = () => {
     };
 
     // Delete todo
-    const deleteTodoHandler = async (id) => {
+    const deleteTaskHandler = async (id) => {
         try {
             // Send delete request to backend
             const response      = await axios.delete(`${baseUrl}/${id}`);
 
             // Remove todo from todos state
-            const filteredTodos = todos.filter(todo => todo.id !== id);
+            const filteredTasks = tasks.filter(task => task.id !== id);
 
             // Update todos state
-            setTodos(filteredTodos);
+            setTasks(filteredTasks);
 
             // Show success message
             setSuccessMsg(response.data.message);
@@ -145,9 +145,9 @@ const App = () => {
     const submitHandler = async (e) => {
         // Conditionally call addTodoHandler or updateTodoHandler
         if (isEdit) {
-            await updateTodoHandler(e);
+            await updateTaskHandler(e);
         } else {
-            await addTodoHandler(e);
+            await addTaskHandler(e);
         }
     };
 
@@ -162,18 +162,18 @@ const App = () => {
 
     // Fetch all todos on page load or component mounted
     useEffect(() => {
-        getTodos();
+        getTasks();
     }, []);
 
     return (
         <div className="container">
-            <h1 className="h1 text-center">Todo APP</h1>
+            <h1 className="h1 text-center">Task Tracker</h1>
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <div className="card mb-4">
                         <div className="card-header">
                             <h4 className="card-title">
-                                Add Todo
+                                Add Task
                             </h4>
                         </div>
                         <form onSubmit={submitHandler}>
@@ -194,7 +194,7 @@ const App = () => {
                             </div>
                             <div className="card-footer">
                                 <p className="text-end">
-                                    <button type="button" className="btn btn-danger btn-lg" onClick={cancelTodoHandler}>
+                                    <button type="button" className="btn btn-danger btn-lg" onClick={cancelTaskHandler}>
                                         Cancel
                                     </button>
                                     {isEdit ?
@@ -228,7 +228,7 @@ const App = () => {
                     <div className="card">
                         <div className="card-header">
                             <h4 className="card-title">
-                                Todo List
+                                Task List
                             </h4>
                         </div>
                         <div className="card-body">
@@ -243,20 +243,20 @@ const App = () => {
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    {todos.map((todo, index) => (
+                                    {tasks.map((task, index) => (
                                         <tr key={index}>
                                             <td className="text-center">{index + 1}</td>
-                                            <td>{todo.title}</td>
+                                            <td>{task.title}</td>
                                             <td>
-                                                {todo.description.length > 50 ? todo.description.substring(0, 50) + '...' : todo.description}
+                                                {task.description.length > 50 ? task.description.substring(0, 50) + '...' : task.description}
                                             </td>
                                             <td className="text-center">
                                                 <button type="button" className="btn btn-sm btn-primary btn-sm"
-                                                        onClick={editTodoHandler.bind(this, todo)}>
+                                                        onClick={editTaskHandler.bind(this, task)}>
                                                     Edit
                                                 </button>
                                                 <button type="button" className="btn btn-sm btn-danger btn-sm ms-2"
-                                                        onClick={deleteTodoHandler.bind(this, todo.id)}>
+                                                        onClick={deleteTaskHandler.bind(this, task.id)}>
                                                     Delete
                                                 </button>
                                             </td>
