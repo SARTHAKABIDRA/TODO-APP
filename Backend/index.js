@@ -15,7 +15,7 @@ const DB = mysql.createConnection({
     host    : 'localhost',
     user    : 'root',
     password: 'sarthak1234',
-    database: 'todo',
+    database: 'task',
 });
 
 DB.connect((err) => {
@@ -27,13 +27,13 @@ DB.connect((err) => {
 });
 
 app.get('/',(req,res) => {
-    res.send('<h1 style="text-align: center;">Welcome to the Todo List API!</h1>')
+    res.send('<h1 style="text-align: center;">Welcome to the Task List API!</h1>')
 })
 
-app.get('/todos', async (req, res) => {
+app.get('/tasks', async (req, res) => {
     try{
         const results = await new Promise((resolve, reject) => {
-            DB.query('SELECT * FROM todo', (err, results) => {
+            DB.query('SELECT * FROM task', (err, results) => {
                 if(err) reject(err);
                 resolve(results)
             })
@@ -42,13 +42,13 @@ app.get('/todos', async (req, res) => {
         if (!results.length) {
             return res.send({
                 success: false,
-                message: 'No todos found!',
+                message: 'No tasks found!',
                 data   : results
             });
         }
         return res.send({
             success: true,
-            message: 'Todos retrieved from database successfully!',
+            message: 'Tasks retrieved from database successfully!',
             data   : results
         });
     }catch(err){
@@ -56,10 +56,10 @@ app.get('/todos', async (req, res) => {
     }
 })
 
-app.post('/todos',(req,res) => {
+app.post('/tasks',(req,res) => {
     const {title , description} = req.body;
 
-    DB.query('INSERT INTO todo (title, description) VALUES (?, ?)', [title, description], (err, results) => {
+    DB.query('INSERT INTO task (title, description) VALUES (?, ?)', [title, description], (err, results) => {
         if(err)throw err; // Throw error if any
 
         console.log(results)
@@ -67,14 +67,14 @@ app.post('/todos',(req,res) => {
         if (!results.affectedRows) {
             return res.send({
                 success: false,
-                message: 'Todo not added!',
+                message: 'Task not added!',
                 data   : results
             });
         }
 
         return res.send({
             success: true,
-            message: 'Todo added successfully!',
+            message: 'Task added successfully!',
             data   : {
                 id: results.insertId,
                 title,
@@ -84,19 +84,19 @@ app.post('/todos',(req,res) => {
     })
 })
 // Update todo
-app.put('/todos/:id', (req, res) => {
+app.put('/tasks/:id', (req, res) => {
     // Get data from request body
     const {title, description} = req.body;
 
     // Update todo in database
-    DB.query('UPDATE todo SET title = ?, description = ? WHERE id = ?', [title, description, req.params.id], (err, results) => {
+    DB.query('UPDATE task SET title = ?, description = ? WHERE id = ?', [title, description, req.params.id], (err, results) => {
         if (err) throw err; // Throw error if any
 
         // If no rows affected, then todo not updated
         if (!results.affectedRows) {
             return res.send({
                 success: false,
-                message: 'Todo not updated!',
+                message: 'Task not updated!',
                 data   : results
             });
         }
@@ -107,7 +107,7 @@ app.put('/todos/:id', (req, res) => {
         // Return response
         return res.send({
             success: true,
-            message: 'Todo updated successfully!',
+            message: 'Task updated successfully!',
             data   : {
                 id: req.params.id,
                 title,
@@ -116,15 +116,15 @@ app.put('/todos/:id', (req, res) => {
         });
     });
 });
-app.delete('/todos/:id', (req, res) => {
-    DB.query('DELETE FROM todo WHERE id = ?', [req.params.id], (err, results) => {
+app.delete('/tasks/:id', (req, res) => {
+    DB.query('DELETE FROM task WHERE id = ?', [req.params.id], (err, results) => {
         if (err) throw err; // Throw error if any
 
         // If no rows affected, then todo not deleted
         if (!results.affectedRows) {
             return res.send({
                 success: false,
-                message: 'Todo not deleted!',
+                message: 'Task not deleted!',
                 data   : results
             });
         }
@@ -134,7 +134,7 @@ app.delete('/todos/:id', (req, res) => {
         // Return response
         return res.send({
             success: true,
-            message: 'Todo deleted successfully!'
+            message: 'Task deleted successfully!'
         });
     });
 });
